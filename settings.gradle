@@ -1,0 +1,5 @@
+rootProject.name = 'line-queue-system'
+include 'line-queue-client'
+include 'line-queue-worker'
+include 'line-queue-common'
+
