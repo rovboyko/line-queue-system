@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'ru.home.linequeue'
+version '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':line-queue-common')
+
+    compile 'io.netty:netty-all:4.1.58.Final'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

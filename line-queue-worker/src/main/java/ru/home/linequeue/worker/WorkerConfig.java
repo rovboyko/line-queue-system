@@ -8,7 +8,6 @@ public class WorkerConfig extends Configuration {
     public static String WORKER_PORT = "worker.port";
 
     //Worker properties
-    public static String THREADS_COUNT = "worker.threads.cnt";
     public static String QUEUE_CAPACITY = "worker.queue.capacity";
 
     //DEFAULT VALUES
@@ -19,16 +18,11 @@ public class WorkerConfig extends Configuration {
 
     static {
         argProperties.add("--"+WORKER_PORT);
-        argProperties.add("--"+THREADS_COUNT);
         argProperties.add("--"+QUEUE_CAPACITY);
     }
 
     public int getWorkerPort() {
         return Integer.parseInt(properties.getProperty(WORKER_PORT, String.valueOf(DEFAULT_WORKER_PORT)));
-    }
-
-    public int getThreadsCount() {
-        return Integer.parseInt(properties.getProperty(THREADS_COUNT, String.valueOf(DEFAULT_THREADS_COUNT)));
     }
 
     public int getQueueCapacity() {

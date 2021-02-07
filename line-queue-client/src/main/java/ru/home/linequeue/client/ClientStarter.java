@@ -1,6 +1,6 @@
 package ru.home.linequeue.client;
 
-import ru.home.linequeue.client.network.WorkerClient;
+import ru.home.linequeue.client.network.MasterClient;
 import ru.home.linequeue.config.Configuration;
 
 public class ClientStarter {
@@ -12,7 +12,9 @@ public class ClientStarter {
     }
 
     private void startWorkerClient(ClientConfig config) {
-        WorkerClient client = new WorkerClient("localhost", 10042);
+        MasterClient client = new MasterClient(
+                config.getMasterHost(),
+                config.getMasterPort());
         client.start();
     }
 }

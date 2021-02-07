@@ -3,6 +3,7 @@ package ru.home.linequeue.worker.exception;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+//todo: use or drop
 public class WorkerRuntimeException extends RuntimeException {
 
     private static final String HOSTNAME;

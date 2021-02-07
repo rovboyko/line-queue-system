@@ -26,7 +26,7 @@ public abstract class Configuration {
 
     //DEFAULT VALUES
     protected static final String DEFAULT_MASTER_HOST = "localhost";
-    protected static final String DEFAULT_MASTER_PORT = "10042";
+    protected static final int DEFAULT_MASTER_PORT = 10042;
 
     private static final int DEFAULT_THREADS_COUNT = 4;
     private static final int DEFAULT_QUEUE_CAPACITY = 100 * 1000;
