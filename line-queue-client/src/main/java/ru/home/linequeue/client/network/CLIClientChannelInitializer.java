@@ -7,13 +7,13 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-public class ClientMasterChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class CLIClientChannelInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     public void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast(
                 new ObjectEncoder(),
                 new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                new ClientMasterMessageHandler());
+                new CLIClientMessageHandler());
     }
 }

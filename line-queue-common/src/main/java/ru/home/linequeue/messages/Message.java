@@ -8,19 +8,24 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode
 public class Message implements Serializable {
 
     private static final long serialVersionUID = 6313680935421286924L;
 
     private Type type;
+
     private String body;
+
+    @EqualsAndHashCode.Exclude
     private long ts;
+
     private long reqId;
 
     public enum Type {
         GET, // used for get request
         PUT, // used for put request
-        STOP, // used for disconnecting client from master
+        QUIT, // used for disconnecting client from master
         REGISTER, // used for registering worker server in master
         SHUTDOWN, // used for shutdown worker server from master and master server from client
         ACKNOWLEDGE, // used as response for successfully enqueued line

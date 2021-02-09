@@ -9,9 +9,12 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.home.linequeue.master.network.process.RandomWorkerChoosingStrategy;
 import ru.home.linequeue.master.network.process.RequestBuffer;
+import ru.home.linequeue.master.network.process.WorkerChoosingStrategy;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 public class MasterChannelInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -19,10 +22,15 @@ public class MasterChannelInitializer extends ChannelInitializer<SocketChannel> 
 
     private final Map<String, ChannelHandlerContext> workersChannels;
     private final RequestBuffer requestBuffer;
+    private final ConcurrentNavigableMap<Long, String> linesToWorkers;
+    private final WorkerChoosingStrategy workerChoosingStrategy = new RandomWorkerChoosingStrategy();
 
-    public MasterChannelInitializer(Map<String, ChannelHandlerContext> workersChannels, RequestBuffer requestBuffer) {
+    public MasterChannelInitializer(Map<String, ChannelHandlerContext> workersChannels,
+                                    RequestBuffer requestBuffer,
+                                    ConcurrentNavigableMap<Long, String> linesToWorkers) {
         this.workersChannels = workersChannels;
         this.requestBuffer = requestBuffer;
+        this.linesToWorkers = linesToWorkers;
     }
 
 
@@ -32,7 +40,7 @@ public class MasterChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(
                 new ObjectEncoder(),
                 new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                new MasterMessageHandler(workersChannels, requestBuffer));
+                new MasterMessageHandler(workersChannels, requestBuffer, linesToWorkers, workerChoosingStrategy));
     }
 
 }

@@ -1,6 +1,6 @@
 package ru.home.linequeue.client;
 
-import ru.home.linequeue.client.network.MasterClient;
+import ru.home.linequeue.client.network.CLIClient;
 import ru.home.linequeue.config.Configuration;
 
 public class ClientStarter {
@@ -8,11 +8,11 @@ public class ClientStarter {
     public static void main(String[] args) {
         var clientStarter = new ClientStarter();
         var clientConfig = Configuration.createFromArgs(args, new ClientConfig());
-        clientStarter.startWorkerClient(clientConfig);
+        clientStarter.startMasterClient(clientConfig);
     }
 
-    private void startWorkerClient(ClientConfig config) {
-        MasterClient client = new MasterClient(
+    private void startMasterClient(ClientConfig config) {
+        CLIClient client = new CLIClient(
                 config.getMasterHost(),
                 config.getMasterPort());
         client.start();
