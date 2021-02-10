@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group 'ru.home.linequeue'
+version '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':line-queue-client')
+    implementation project(':line-queue-master')
+    implementation project(':line-queue-worker')
+    implementation project(':line-queue-common')
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.github.stefanbirkner:system-rules:1.19.0'
+}

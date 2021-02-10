@@ -3,4 +3,5 @@ include 'line-queue-client'
 include 'line-queue-worker'
 include 'line-queue-common'
 include 'line-queue-master'
+include 'line-queue-tests'
 

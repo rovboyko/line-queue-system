@@ -37,8 +37,8 @@ public abstract class Configuration {
     protected final Properties properties = new Properties();
 
     public static <T extends Configuration> T createFromArgs(@NonNull String[] args, @NonNull T config) {
-        var propFilename = getPropFileName(args).orElse(Configuration.DEFAULT_PROP_FILE);
-        var appConfig = createFromFile(propFilename, config);
+        String propFilename = getPropFileName(args).orElse(Configuration.DEFAULT_PROP_FILE);
+        T appConfig = createFromFile(propFilename, config);
         appConfig.addPropertiesFromArgs(args);
         return appConfig;
     }

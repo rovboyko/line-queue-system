@@ -1,4 +1,4 @@
-package ru.home.linequeue.master.network.transport;
+package ru.home.linequeue.master.network;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;

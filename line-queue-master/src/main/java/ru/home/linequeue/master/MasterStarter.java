@@ -1,13 +1,13 @@
 package ru.home.linequeue.master;
 
 import ru.home.linequeue.config.Configuration;
-import ru.home.linequeue.master.network.transport.MasterServer;
+import ru.home.linequeue.master.network.MasterServer;
 
 public class MasterStarter {
 
     public static void main(String[] args) {
-        var masterStarter = new MasterStarter();
-        var masterConfig = Configuration.createFromArgs(args, new MasterConfig());
+        MasterStarter masterStarter = new MasterStarter();
+        MasterConfig masterConfig = Configuration.createFromArgs(args, new MasterConfig());
         masterStarter.startMasterServer(masterConfig);
     }
 

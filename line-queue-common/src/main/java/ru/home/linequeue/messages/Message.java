@@ -32,6 +32,7 @@ public class Message implements Serializable {
         OVERSIZE, // used for indication worker's oversized queue
         EMPTY, // used for indication worker's empty queue
         ERR, // used when unhandled exception occurs
-        DATA // used as header for dequeued line
+        DATA, // used as header for dequeued line
+        NOT_ENOUGH // used as indication that master queue has not enough data
     }
 }

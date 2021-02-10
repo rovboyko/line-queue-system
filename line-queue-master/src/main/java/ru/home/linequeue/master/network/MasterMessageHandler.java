@@ -1,4 +1,4 @@
-package ru.home.linequeue.master.network.transport;
+package ru.home.linequeue.master.network;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -65,8 +65,11 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
             // this is message from client and it should be provided to worker
             processPut(ctx, in);
         } else if (in.getType().equals(SHUTDOWN)) {
-            // this is message from client and it should be provided to worker
+            // this is message from client and it should initiate workers shutdown
             processShutdown(ctx, in);
+        } else if (in.getType().equals(QUIT)) {
+            // this is message from client and it should be processed here
+            processQuit(ctx, in);
         } else if (Arrays.asList(ACKNOWLEDGE, OVERSIZE, DATA, EMPTY, ERR).contains(in.getType())) {
             // this is message from worker and it should be provided back to client
             provideToClient(in);
@@ -107,7 +110,12 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
 
         int linesNumber = Integer.parseInt(in.getBody());
 
-        //todo: check if we have enough messages on workers
+        if (linesToWorkers.size() < linesNumber) {
+            in.setType(NOT_ENOUGH);
+            clientCtx.writeAndFlush(in);
+            return;
+        }
+
         for (int i = 0; i < linesNumber; i++){
             Map.Entry<Long, String> reqIdToWorker = linesToWorkers.pollFirstEntry();
             String workerName = reqIdToWorker.getValue();
@@ -116,8 +124,8 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
 
             ChannelHandlerContext workerChannel = workersChannels.get(workerName);
             long reqId = requestBuffer.addRequest(clientCtx);
-            in.setReqId(reqId);
-            workerChannel.writeAndFlush(in);
+            Message getMsg = new Message(GET, "1", in.getTs(), reqId);
+            workerChannel.writeAndFlush(getMsg);
 
             log.info("MASTER: message " + in + " was successfully sent to worker " + workerName);
         }
@@ -127,12 +135,16 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
         //todo: implement it
     }
 
+    private void processQuit(ChannelHandlerContext clientCtx, Message in) {
+        log.info("MASTER: message " + in + " was successfully received");
+    }
+
     private void provideToClient(Message in) {
         ChannelHandlerContext clientChannel = requestBuffer.getChannel(in.getReqId());
         if (clientChannel != null) {
             clientChannel.writeAndFlush(in);
         } else {
-            log.error("Can't find client channel for message " + in);
+            log.error("MASTER: Can't find client channel for message " + in);
         }
     }
 }

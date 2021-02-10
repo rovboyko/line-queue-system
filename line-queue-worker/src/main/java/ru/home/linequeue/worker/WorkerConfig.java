@@ -11,9 +11,7 @@ public class WorkerConfig extends Configuration {
     public static String QUEUE_CAPACITY = "worker.queue.capacity";
 
     //DEFAULT VALUES
-    private static final String DEFAULT_WORKER_PORT = "10042";
-
-    private static final int DEFAULT_THREADS_COUNT = 4;
+    private static final int DEFAULT_WORKER_PORT = 10042;
     private static final int DEFAULT_QUEUE_CAPACITY = 100 * 1000;
 
     static {

@@ -10,18 +10,23 @@ import ru.home.linequeue.messages.Message;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 import static ru.home.linequeue.messages.Message.Type.*;
 
 public class ConsoleListener {
     private final Reader reader;
     private final Channel channel;
+    private final AtomicInteger unAnsweredMessages;
 
     private static final Logger log = LoggerFactory.getLogger(ConsoleListener.class.getName());
 
-    public ConsoleListener(Reader reader, Channel channel) {
+    public ConsoleListener(Reader reader, Channel channel, AtomicInteger unAnsweredMessages) {
         this.reader = reader;
         this.channel = channel;
+        this.unAnsweredMessages = unAnsweredMessages;
     }
 
     public void start() throws IOException, InterruptedException {
@@ -53,6 +58,11 @@ public class ConsoleListener {
             }
 
             if (close) {
+                // just waiting for all GET and PUT messages to be acknowledged
+                while (unAnsweredMessages.get() > 0) {
+                    //noinspection BusyWait
+                    Thread.sleep(100);
+                }
                 lastWriteFuture.addListener(ChannelFutureListener.CLOSE);
                 break;
             }
@@ -72,6 +82,7 @@ public class ConsoleListener {
         // trying to obtain the number of lines for getting from our queue
         int linesCnt = Integer.parseInt(command.substring(3).trim());
         Message msg = new Message(GET, String.valueOf(linesCnt), System.currentTimeMillis(), 0);
+        IntStream.range(0, linesCnt).forEach(n -> unAnsweredMessages.incrementAndGet());
         return channel.writeAndFlush(msg);
     }
 
@@ -83,6 +94,7 @@ public class ConsoleListener {
         // trying to obtain to be put into queue
         String line = command.substring(3).trim();
         Message msg = new Message(PUT, line, System.currentTimeMillis(), 0);
+        unAnsweredMessages.incrementAndGet();
         return channel.writeAndFlush(msg);
     }
 
