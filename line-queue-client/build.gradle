@@ -17,3 +17,13 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
 }
+
+task customUberJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'ru.home.linequeue.client.ClientStarter'
+    }
+    getArchiveBaseName().set(project.name + '-uber-jar')
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from project(":line-queue-common").sourceSets.main.output
+    with jar
+}

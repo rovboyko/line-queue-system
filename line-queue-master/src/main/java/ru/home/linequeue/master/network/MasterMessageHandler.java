@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static ru.home.linequeue.messages.Message.Type.*;
 import static ru.home.linequeue.utils.Checker.checkCondition;
@@ -19,11 +21,14 @@ import static ru.home.linequeue.utils.Checker.checkCondition;
 /**
  * Handler uses for:
  * - receiving worker register messages and add their ChannelHandlerContext to stored map
- * - receives PUT and GET
+ * - receiving PUT and GET from clients and forwards them to workers
+ * - receiving DATA or other technical messages from workers and provides them back to clients
  */
 public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(MasterMessageHandler.class.getName());
+
+    private final MasterServer masterServer;
 
     private final Map<String, ChannelHandlerContext> workersChannels;
     private final RequestBuffer requestBuffer;
@@ -31,10 +36,11 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
     private final WorkerChoosingStrategy workerChoosingStrategy;
 
 
-    public MasterMessageHandler(Map<String, ChannelHandlerContext> workersChannels,
+    public MasterMessageHandler(MasterServer masterServer, Map<String, ChannelHandlerContext> workersChannels,
                                 RequestBuffer requestBuffer,
                                 ConcurrentNavigableMap<Long, String> linesToWorkers,
                                 WorkerChoosingStrategy workerChoosingStrategy) {
+        this.masterServer = masterServer;
         this.workersChannels = workersChannels;
         this.requestBuffer = requestBuffer;
         this.linesToWorkers = linesToWorkers;
@@ -69,7 +75,7 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
             processShutdown(ctx, in);
         } else if (in.getType().equals(QUIT)) {
             // this is message from client and it should be processed here
-            processQuit(ctx, in);
+            processQuit(in);
         } else if (Arrays.asList(ACKNOWLEDGE, OVERSIZE, DATA, EMPTY, ERR).contains(in.getType())) {
             // this is message from worker and it should be provided back to client
             provideToClient(in);
@@ -131,11 +137,17 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void processShutdown(ChannelHandlerContext clientCtx, Message in) {
-        //todo: implement it
+    private void processShutdown(ChannelHandlerContext ctx, Message in) {
+        log.info("MASTER: message " + in + " was successfully received");
+        workersChannels.values().forEach(workerCh -> workerCh.writeAndFlush(in));
+        workersChannels.clear();
+        ctx.channel().close();
+        ctx.channel().parent().close();
+        Executors.newSingleThreadScheduledExecutor()
+                .schedule(masterServer::close, 10, TimeUnit.SECONDS);
     }
 
-    private void processQuit(ChannelHandlerContext clientCtx, Message in) {
+    private void processQuit(Message in) {
         log.info("MASTER: message " + in + " was successfully received");
     }
 

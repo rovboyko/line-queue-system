@@ -13,24 +13,28 @@ import ru.home.linequeue.master.network.process.RandomWorkerChoosingStrategy;
 import ru.home.linequeue.master.network.process.RequestBuffer;
 import ru.home.linequeue.master.network.process.WorkerChoosingStrategy;
 
+import java.util.Comparator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class MasterChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final Logger log = LoggerFactory.getLogger(MasterChannelInitializer.class.getName());
 
-    private final Map<String, ChannelHandlerContext> workersChannels;
-    private final RequestBuffer requestBuffer;
-    private final ConcurrentNavigableMap<Long, String> linesToWorkers;
+    private final MasterServer masterServer;
+
+    // we should hold single instance of every working collection
+    // (workersChannels, requestBuffer, linesToWorkers) for all handlers
+    private final Map<String, ChannelHandlerContext> workersChannels = new ConcurrentHashMap<>();
+    private final RequestBuffer requestBuffer = new RequestBuffer();
+    private final ConcurrentNavigableMap<Long, String> linesToWorkers = new ConcurrentSkipListMap<>(Comparator.naturalOrder());
+
     private final WorkerChoosingStrategy workerChoosingStrategy = new RandomWorkerChoosingStrategy();
 
-    public MasterChannelInitializer(Map<String, ChannelHandlerContext> workersChannels,
-                                    RequestBuffer requestBuffer,
-                                    ConcurrentNavigableMap<Long, String> linesToWorkers) {
-        this.workersChannels = workersChannels;
-        this.requestBuffer = requestBuffer;
-        this.linesToWorkers = linesToWorkers;
+    public MasterChannelInitializer(MasterServer masterServer) {
+        this.masterServer = masterServer;
     }
 
 
@@ -40,7 +44,7 @@ public class MasterChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(
                 new ObjectEncoder(),
                 new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                new MasterMessageHandler(workersChannels, requestBuffer, linesToWorkers, workerChoosingStrategy));
+                new MasterMessageHandler(masterServer, workersChannels, requestBuffer, linesToWorkers, workerChoosingStrategy));
     }
 
 }

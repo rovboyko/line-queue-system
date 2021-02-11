@@ -66,11 +66,15 @@ public class ConsoleListenerTest {
         assertEquals(expectedQuitMsg, actualQuitMsg);
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void invalidNumberGetTest() throws IOException, InterruptedException {
         Reader reader = new StringReader("GET 1ds4\nquit\n");
         ConsoleListener consoleListener = new ConsoleListener(reader, channel, unAnsweredMessages);
         consoleListener.start();
+
+        Message expectedQuitMsg = new Message(QUIT, null, System.currentTimeMillis(), 0);
+        Message actualQuitMsg = channel.readOutbound();
+        assertEquals(expectedQuitMsg, actualQuitMsg);
     }
 
     @Test

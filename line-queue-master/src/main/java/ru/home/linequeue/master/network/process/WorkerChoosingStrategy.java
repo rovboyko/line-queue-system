@@ -15,6 +15,11 @@ public abstract class WorkerChoosingStrategy {
         refreshStrategy();
     }
 
+    public void removeWorker(String worker) {
+        workers.remove(worker);
+        refreshStrategy();
+    }
+
     public Optional<String> getWorker() {
         return getWorkerInternal();
     }

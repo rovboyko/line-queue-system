@@ -29,7 +29,7 @@ public class WorkerMessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         Message registerMsg = new Message(REGISTER, workerHost + ":" + workerPort, System.currentTimeMillis(), 0);
         log.info("WORKER: send register message " + registerMsg);
         ChannelFuture future = ctx.writeAndFlush(registerMsg);
@@ -60,7 +60,8 @@ public class WorkerMessageHandler extends ChannelInboundHandlerAdapter {
         } else if (in.getType().equals(PUT)) {
             putToQueue(ctx, in);
         } else if (in.getType().equals(SHUTDOWN)) {
-            // todo: process it
+            ctx.channel().close();
+            log.info("WORKER: closing the connection - " + in);
         } else {
             log.warn("WORKER: message with unexpected type - " + in);
         }

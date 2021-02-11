@@ -10,11 +10,13 @@ import ru.home.linequeue.messages.Message;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import static ru.home.linequeue.messages.Message.Type.*;
+import static ru.home.linequeue.messages.Message.Type.GET;
+import static ru.home.linequeue.messages.Message.Type.PUT;
+import static ru.home.linequeue.messages.Message.Type.QUIT;
+import static ru.home.linequeue.messages.Message.Type.SHUTDOWN;
 
 public class ConsoleListener {
     private final Reader reader;
@@ -80,7 +82,14 @@ public class ConsoleListener {
     //    - GEt    8
     private ChannelFuture processGet(String command) {
         // trying to obtain the number of lines for getting from our queue
-        int linesCnt = Integer.parseInt(command.substring(3).trim());
+        int linesCnt;
+        try {
+            linesCnt = Integer.parseInt(command.substring(3).trim());
+        } catch (NumberFormatException e) {
+            System.out.println("ERR");
+            log.error("Can't get number from GET command: " + command);
+            return null;
+        }
         Message msg = new Message(GET, String.valueOf(linesCnt), System.currentTimeMillis(), 0);
         IntStream.range(0, linesCnt).forEach(n -> unAnsweredMessages.incrementAndGet());
         return channel.writeAndFlush(msg);
