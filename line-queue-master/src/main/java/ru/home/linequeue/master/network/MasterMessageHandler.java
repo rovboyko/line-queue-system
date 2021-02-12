@@ -5,17 +5,25 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.home.linequeue.master.network.process.RequestBuffer;
-import ru.home.linequeue.master.network.process.WorkerChoosingStrategy;
+import ru.home.linequeue.master.network.process.strategy.WorkerChoosingStrategy;
 import ru.home.linequeue.messages.Message;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import static ru.home.linequeue.messages.Message.Type.*;
+import static ru.home.linequeue.messages.Message.Type.ACKNOWLEDGE;
+import static ru.home.linequeue.messages.Message.Type.DATA;
+import static ru.home.linequeue.messages.Message.Type.EMPTY;
+import static ru.home.linequeue.messages.Message.Type.ERR;
+import static ru.home.linequeue.messages.Message.Type.GET;
+import static ru.home.linequeue.messages.Message.Type.NOT_ENOUGH;
+import static ru.home.linequeue.messages.Message.Type.OVERSIZE;
+import static ru.home.linequeue.messages.Message.Type.PUT;
+import static ru.home.linequeue.messages.Message.Type.QUIT;
+import static ru.home.linequeue.messages.Message.Type.REGISTER;
+import static ru.home.linequeue.messages.Message.Type.SHUTDOWN;
 import static ru.home.linequeue.utils.Checker.checkCondition;
 
 /**
@@ -50,7 +58,7 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         log.debug("MASTER: receive msg " + msg);
-        checkCondition(msg instanceof Message, "MASTER: wrong message class - " + msg.getClass().getName());
+        checkCondition(msg instanceof Message, "wrong message class - " + msg.getClass().getName());
         processMessage(ctx, (Message) msg);
     }
 
@@ -80,13 +88,13 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
             // this is message from worker and it should be provided back to client
             provideToClient(in);
         } else {
-            log.warn("MASTER: message with unexpected type - " + in);
+            log.warn("message with unexpected type - " + in);
         }
     }
 
     private void registerWorker(ChannelHandlerContext ctx, Message in) {
         String workerName = in.getBody();
-        log.info("MASTER: worker with name " + workerName + " was successfully registered");
+        log.info("worker with name " + workerName + " was successfully registered");
         // todo: handle already existing worker names
         workersChannels.put(workerName, ctx);
         workerChoosingStrategy.addWorker(workerName);
@@ -106,7 +114,7 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
             workerChannel.writeAndFlush(in);
             linesToWorkers.put(reqId, workerName);
 
-            log.info("MASTER: message " + in + " was successfully sent to worker " + workerName);
+            log.debug("message " + in + " was successfully sent to worker " + workerName);
         } else {
             clientCtx.writeAndFlush(new Message(ERR, "No registered workers", 0, 0));
         }
@@ -126,29 +134,26 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
             Map.Entry<Long, String> reqIdToWorker = linesToWorkers.pollFirstEntry();
             String workerName = reqIdToWorker.getValue();
 
-            log.info("MASTER: dequeue reqIdToWorker: reqId = " + reqIdToWorker.getKey() + " , worker = " + workerName);
+            log.debug("dequeue reqIdToWorker: reqId = " + reqIdToWorker.getKey() + " , worker = " + workerName);
 
             ChannelHandlerContext workerChannel = workersChannels.get(workerName);
             long reqId = requestBuffer.addRequest(clientCtx);
             Message getMsg = new Message(GET, "1", in.getTs(), reqId);
             workerChannel.writeAndFlush(getMsg);
 
-            log.info("MASTER: message " + in + " was successfully sent to worker " + workerName);
+            log.debug("message " + in + " was successfully sent to worker " + workerName);
         }
     }
 
     private void processShutdown(ChannelHandlerContext ctx, Message in) {
-        log.info("MASTER: message " + in + " was successfully received");
+        log.debug("message " + in + " was successfully received");
         workersChannels.values().forEach(workerCh -> workerCh.writeAndFlush(in));
         workersChannels.clear();
-        ctx.channel().close();
         ctx.channel().parent().close();
-        Executors.newSingleThreadScheduledExecutor()
-                .schedule(masterServer::close, 10, TimeUnit.SECONDS);
     }
 
     private void processQuit(Message in) {
-        log.info("MASTER: message " + in + " was successfully received");
+        log.debug("message " + in + " was successfully received");
     }
 
     private void provideToClient(Message in) {
@@ -156,7 +161,7 @@ public class MasterMessageHandler extends ChannelInboundHandlerAdapter {
         if (clientChannel != null) {
             clientChannel.writeAndFlush(in);
         } else {
-            log.error("MASTER: Can't find client channel for message " + in);
+            log.error("Can't find client channel for message " + in);
         }
     }
 }

@@ -49,15 +49,15 @@ public class CLIClientMessageHandler extends ChannelInboundHandlerAdapter {
         } else if (msg.getType().equals(NOT_ENOUGH)) {
             System.out.println(ERR);
             int linesCnt = Integer.parseInt(msg.getBody());
-            log.info(String.format("queue doesn't contain %s lines", linesCnt));
+            log.debug(String.format("queue doesn't contain %s lines", linesCnt));
             IntStream.range(0, linesCnt).forEach(n -> unAnsweredMessages.decrementAndGet());
         } else if (Arrays.asList(OVERSIZE, EMPTY, ERR).contains(msg.getType())) {
             // something bad happened
             System.out.println(ERR);
-            log.error("MASTER: receives fatal response - " + msg);
+            log.error("receives fatal response - " + msg);
             unAnsweredMessages.decrementAndGet();
         } else {
-            log.warn("MASTER: message with unexpected type - " + msg);
+            log.warn("message with unexpected type - " + msg);
         }
     }
 }

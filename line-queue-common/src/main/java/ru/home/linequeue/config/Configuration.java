@@ -28,9 +28,6 @@ public abstract class Configuration {
     protected static final String DEFAULT_MASTER_HOST = "localhost";
     protected static final int DEFAULT_MASTER_PORT = 10042;
 
-    private static final int DEFAULT_THREADS_COUNT = 4;
-    private static final int DEFAULT_QUEUE_CAPACITY = 100 * 1000;
-
     protected static Set<String> argProperties = Stream.of("--"+PROP_FILE, "--"+ MASTER_HOST, "--"+ MASTER_PORT)
             .collect(Collectors.toCollection(HashSet::new));
 
@@ -63,6 +60,7 @@ public abstract class Configuration {
 
         } catch (IOException ex) {
             log.error("IOException while trying to load config from file " + filename);
+            log.info("Using default config attributes");
             return config;
         }
     }

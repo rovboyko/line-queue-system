@@ -1,6 +1,8 @@
 package ru.home.linequeue.master.network.process;
 
 import org.junit.Test;
+import ru.home.linequeue.master.network.process.strategy.RandomWorkerChoosingStrategy;
+import ru.home.linequeue.master.network.process.strategy.WorkerChoosingStrategy;
 
 import java.util.Arrays;
 

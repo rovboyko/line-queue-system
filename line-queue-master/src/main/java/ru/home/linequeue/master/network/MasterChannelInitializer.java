@@ -7,11 +7,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.home.linequeue.master.network.process.RandomWorkerChoosingStrategy;
 import ru.home.linequeue.master.network.process.RequestBuffer;
-import ru.home.linequeue.master.network.process.WorkerChoosingStrategy;
+import ru.home.linequeue.master.network.process.strategy.RandomWorkerChoosingStrategy;
+import ru.home.linequeue.master.network.process.strategy.WorkerChoosingStrategy;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -20,8 +18,6 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class MasterChannelInitializer extends ChannelInitializer<SocketChannel> {
-
-    private static final Logger log = LoggerFactory.getLogger(MasterChannelInitializer.class.getName());
 
     private final MasterServer masterServer;
 

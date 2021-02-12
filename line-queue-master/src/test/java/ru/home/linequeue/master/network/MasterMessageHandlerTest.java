@@ -4,9 +4,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.Before;
 import org.junit.Test;
-import ru.home.linequeue.master.network.process.RandomWorkerChoosingStrategy;
+import ru.home.linequeue.master.network.process.strategy.RandomWorkerChoosingStrategy;
 import ru.home.linequeue.master.network.process.RequestBuffer;
-import ru.home.linequeue.master.network.process.WorkerChoosingStrategy;
+import ru.home.linequeue.master.network.process.strategy.WorkerChoosingStrategy;
 import ru.home.linequeue.messages.Message;
 
 import java.util.Comparator;

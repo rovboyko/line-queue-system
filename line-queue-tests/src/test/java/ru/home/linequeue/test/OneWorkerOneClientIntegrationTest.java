@@ -24,21 +24,21 @@ public class OneWorkerOneClientIntegrationTest {
     }
 
     @Test
-    public void simplePutAndGetTest() throws InterruptedException {
+    public void simplePutAndGetTest() {
         Reader reader = new StringReader("put abc\nget 1\nquit\n");
         testHarness.startClient(reader);
         assertEquals("abc\n", systemOutRule.getLogWithNormalizedLineSeparator());
     }
 
     @Test
-    public void put3AndGet1Test() throws InterruptedException {
+    public void put3AndGet1Test() {
         Reader reader = new StringReader("put abc\nput def\nput ghi\nget 3\nquit\n");
         testHarness.startClient(reader);
         testHarness.compareWithoutOrdering("abc\ndef\nghi\n", systemOutRule.getLogWithNormalizedLineSeparator());
     }
 
     @Test
-    public void putsAndGetsTest() throws InterruptedException {
+    public void putsAndGetsTest() {
         Reader reader = new StringReader("put abc\nput def\nput ghi\nget 3\n" +
                 "put jkl\nput mno\nput pqr\nget 3\n" +
                 "quit\n");

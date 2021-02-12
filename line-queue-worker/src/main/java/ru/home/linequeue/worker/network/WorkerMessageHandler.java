@@ -61,14 +61,14 @@ public class WorkerMessageHandler extends ChannelInboundHandlerAdapter {
             putToQueue(ctx, in);
         } else if (in.getType().equals(SHUTDOWN)) {
             ctx.channel().close();
-            log.info("WORKER: closing the connection - " + in);
+            log.info("closing the connection - " + in);
         } else {
-            log.warn("WORKER: message with unexpected type - " + in);
+            log.warn("message with unexpected type - " + in);
         }
     }
 
     private void putToQueue(ChannelHandlerContext ctx, Message in) {
-        Checker.checkCondition(in.getReqId() > 0, "WORKER: put request should contain reqId");
+        Checker.checkCondition(in.getReqId() > 0, "put request should contain reqId");
         try {
             if (queueKeeper.offer(new QueueElement(in.getBody(), in.getTs()))) {
                 ctx.write(new Message(ACKNOWLEDGE, null, 0, in.getReqId()));
@@ -81,7 +81,7 @@ public class WorkerMessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void getFromQueue(ChannelHandlerContext ctx, Message in) {
-        Checker.checkCondition(in.getReqId() > 0, "WORKER: request for data should contain reqId");
+        Checker.checkCondition(in.getReqId() > 0, "request for data should contain reqId");
         try {
             QueueElement elm = queueKeeper.poll();
             if (elm != null) {

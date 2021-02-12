@@ -1,4 +1,4 @@
-package ru.home.linequeue.master.network.process;
+package ru.home.linequeue.master.network.process.strategy;
 
 import java.util.*;
 

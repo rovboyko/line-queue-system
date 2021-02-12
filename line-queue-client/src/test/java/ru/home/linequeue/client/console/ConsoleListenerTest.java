@@ -15,11 +15,11 @@ import static ru.home.linequeue.messages.Message.Type.*;
 
 public class ConsoleListenerTest {
 
-    private EmbeddedChannel channel = new EmbeddedChannel();
-    private AtomicInteger unAnsweredMessages = new AtomicInteger();
+    private final EmbeddedChannel channel = new EmbeddedChannel();
+    private final AtomicInteger unAnsweredMessages = new AtomicInteger();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         //this is because in every test we have only one command to be acknowledged
         unAnsweredMessages.decrementAndGet();
     }

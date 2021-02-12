@@ -12,8 +12,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.home.linequeue.client.console.ConsoleListener;
 
 import java.io.IOException;
@@ -21,8 +19,6 @@ import java.io.Reader;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CLIClient {
-
-    private static final Logger log = LoggerFactory.getLogger(CLIClient.class.getName());
 
     private final String masterHost;
     private final int masterPort;

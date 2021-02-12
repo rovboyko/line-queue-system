@@ -1,0 +1,43 @@
+version: "3.3"
+
+services:
+  line-queue-master:
+    image: openjdk:11
+    container_name: "line-queue-master"
+#    restart: always
+    ports:
+      - 10042:10042
+    volumes:
+      - "./../line-queue-master/build/libs/line-queue-master-uber-jar-0.0.1.jar:/app.jar"
+      - "./logs:/logs"
+    command: ['java', '-jar', '/app.jar']
+  line-queue-worker-1:
+    image: openjdk:11
+    container_name: "line-queue-worker-1"
+#    restart: always
+    depends_on:
+      - "line-queue-master"
+    volumes:
+      - "./../line-queue-worker/build/libs/line-queue-worker-uber-jar-0.0.1.jar:/app.jar"
+      - "./logs:/logs"
+    command: [ 'java', '-jar', '/app.jar', '--master.host', 'line-queue-master', '--master.port', '10042']
+  line-queue-worker-2:
+    image: openjdk:11
+    container_name: "line-queue-worker-2"
+#    restart: always
+    depends_on:
+      - "line-queue-master"
+    volumes:
+      - "./../line-queue-worker/build/libs/line-queue-worker-uber-jar-0.0.1.jar:/app.jar"
+      - "./logs:/logs"
+    command: [ 'java', '-jar', '/app.jar', '--master.host', 'line-queue-master', '--master.port', '10042']
+  line-queue-worker-3:
+    image: openjdk:11
+    container_name: "line-queue-worker-3"
+#    restart: always
+    depends_on:
+      - "line-queue-master"
+    volumes:
+      - "./../line-queue-worker/build/libs/line-queue-worker-uber-jar-0.0.1.jar:/app.jar"
+      - "./logs:/logs"
+    command: [ 'java', '-jar', '/app.jar', '--master.host', 'line-queue-master', '--master.port', '10042' ]

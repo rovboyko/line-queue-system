@@ -55,7 +55,7 @@ public class ConsoleListener {
                 lastWriteFuture = processShutdown();
                 close = true;
             } else {
-                log.info("Unknown input command: " + command);
+                log.warn("Unknown input command: " + command);
                 continue;
             }
 
@@ -87,7 +87,7 @@ public class ConsoleListener {
             linesCnt = Integer.parseInt(command.substring(3).trim());
         } catch (NumberFormatException e) {
             System.out.println("ERR");
-            log.error("Can't get number from GET command: " + command);
+            log.warn("Can't get number from GET command: " + command);
             return null;
         }
         Message msg = new Message(GET, String.valueOf(linesCnt), System.currentTimeMillis(), 0);
